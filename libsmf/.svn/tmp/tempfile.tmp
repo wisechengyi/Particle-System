@@ -1,0 +1,39 @@
+######################################################################
+# File   : Makefile - automates building of the project.             #
+# Author : Tim Sally, adapted by Jason Cho                           #
+# Notes  : Run 'make help' for usage.                                #
+######################################################################
+
+MAT = ../newmat
+LD_LIBRARY_PATH=.:`cd ../libsmf;pwd`
+CXX        = g++ 
+CXX_FLAGS  = -g -ansi -pedantic -Wall -std=c++0x
+LD_FLAGS   = -shared  -lglut -lGL -lGLU -L$(MAT) -lnewmat 
+
+
+# - Files 
+SRCS       = $(shell list=`/bin/ls . | grep -e "\.cpp"`; \
+                          for i in $$list; do echo $$i; done)
+OBJS       = $(SRCS:.cpp=.o)
+TARGETS    = libsmf.so
+
+# --- Suffix Rules 
+
+.SUFFIXES: 
+.SUFFIXES: .cpp .o
+
+.cpp.o:
+	$(CXX) -c -fPIC $(CXX_FLAGS) $< 
+
+# --- Targets
+all: newmat $(TARGETS) export
+
+libsmf.so: $(OBJS)
+	$(CXX)  -o $@ $^ $(LD_FLAGS)
+newmat:
+	cd ../newmat && make
+export:	
+	export LD_LIBRARY_PATH=$(LD_LIBRARY_PATH)
+clean:
+	rm -f $(OBJS) $(TARGETS)
+	
